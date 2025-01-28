@@ -11,8 +11,6 @@ const Index = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Here you would typically make an API call to your GLPI server to verify the OTP
-    // For now, we'll just show a toast message
     toast({
       title: "Verification Attempt",
       description: `OTP ${otp} would be verified with GLPI MFA system. Please implement the actual verification logic according to your GLPI setup.`,
