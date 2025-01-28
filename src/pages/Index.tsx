@@ -3,18 +3,46 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { verifyGlpiMfa } from "@/utils/glpiMfa";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const [otp, setOtp] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
   const glpiUrl = "http://glpi.ngageapp.com:81/marketplace/mfa/front/mfa.form.php";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    toast({
-      title: "Verification Attempt",
-      description: `OTP ${otp} would be verified with GLPI MFA system. Please implement the actual verification logic according to your GLPI setup.`,
-    });
+    if (otp.length !== 6) {
+      toast({
+        title: "Invalid Code",
+        description: "Please enter a 6-digit verification code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      const result = await verifyGlpiMfa(otp);
+      toast({
+        title: result.success ? "Verification Successful" : "Verification Failed",
+        description: result.message,
+        variant: result.success ? "default" : "destructive",
+      });
+
+      if (result.success) {
+        setOtp("");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to verify code. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   return (
@@ -36,13 +64,24 @@ const Index = () => {
                 render={({ slots }) => (
                   <InputOTPGroup>
                     {slots.map((slot, idx) => (
-                      <InputOTPSlot key={idx} {...slot} index={idx} />
+                      <InputOTPSlot key={idx} {...slot} />
                     ))}
                   </InputOTPGroup>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Verify Code
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isVerifying || otp.length !== 6}
+              >
+                {isVerifying ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  'Verify Code'
+                )}
               </Button>
             </div>
           </form>
