@@ -4,31 +4,31 @@ interface GlpiMfaResponse {
 }
 
 export const verifyGlpiMfa = async (
-  otp: string,
-  senderEmail: string,
-  receiverEmail: string
+  code: string
 ): Promise<GlpiMfaResponse> => {
   try {
-    // This is a placeholder for the actual GLPI MFA verification
     const response = await fetch('http://glpi.ngageapp.com:81/marketplace/mfa/front/verify.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
-        otp,
-        senderEmail,
-        receiverEmail 
+      body: JSON.stringify({
+        code,
       }),
     });
 
     const data = await response.json();
-    return {
-      success: data.success,
-      message: data.message || 'Verification completed',
-    };
+    
+    if (data.success) {
+      return {
+        success: true,
+        message: 'Code verified successfully',
+      };
+    }
+    
+    throw new Error(data.message || 'Verification failed');
   } catch (error) {
-    console.error('GLPI MFA verification error:', error);
+    console.error('Failed to verify code:', error);
     return {
       success: false,
       message: 'Failed to verify code. Please try again.',

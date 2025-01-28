@@ -5,42 +5,14 @@ import { toast } from "@/components/ui/use-toast";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { verifyGlpiMfa } from "@/utils/glpiMfa";
 import { Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 const Index = () => {
   const [otp, setOtp] = useState("");
-  const [senderEmail, setSenderEmail] = useState("");
-  const [receiverEmail, setReceiverEmail] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const glpiUrl = "http://glpi.ngageapp.com:81/marketplace/mfa/front/mfa.form.php";
 
-  const validateEmails = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(senderEmail)) {
-      toast({
-        title: "Invalid Sender Email",
-        description: "Please enter a valid sender email address",
-        variant: "destructive",
-      });
-      return false;
-    }
-    if (!emailRegex.test(receiverEmail)) {
-      toast({
-        title: "Invalid Receiver Email",
-        description: "Please enter a valid receiver email address",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateEmails()) {
-      return;
-    }
     if (otp.length !== 6) {
       toast({
         title: "Invalid Code",
@@ -52,7 +24,7 @@ const Index = () => {
 
     setIsVerifying(true);
     try {
-      const result = await verifyGlpiMfa(otp, senderEmail, receiverEmail);
+      const result = await verifyGlpiMfa(otp);
       toast({
         title: result.success ? "Verification Successful" : "Verification Failed",
         description: result.message,
@@ -61,8 +33,6 @@ const Index = () => {
 
       if (result.success) {
         setOtp("");
-        setSenderEmail("");
-        setReceiverEmail("");
       }
     } catch (error) {
       toast({
@@ -88,31 +58,6 @@ const Index = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="senderEmail">Sender Email</Label>
-                <Input
-                  id="senderEmail"
-                  type="email"
-                  placeholder="sender@example.com"
-                  value={senderEmail}
-                  onChange={(e) => setSenderEmail(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="receiverEmail">Receiver Email</Label>
-                <Input
-                  id="receiverEmail"
-                  type="email"
-                  placeholder="receiver@example.com"
-                  value={receiverEmail}
-                  onChange={(e) => setReceiverEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="otp">Verification Code</Label>
                 <InputOTP
                   value={otp}
                   onChange={setOtp}
@@ -131,7 +76,7 @@ const Index = () => {
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isVerifying || otp.length !== 6 || !senderEmail || !receiverEmail}
+              disabled={isVerifying || otp.length !== 6}
             >
               {isVerifying ? (
                 <>
