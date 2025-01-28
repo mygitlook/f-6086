@@ -10,7 +10,6 @@ export const verifyGlpiMfa = async (
 ): Promise<GlpiMfaResponse> => {
   try {
     // This is a placeholder for the actual GLPI MFA verification
-    // You would need to replace this with your actual GLPI API endpoint
     const response = await fetch('http://glpi.ngageapp.com:81/marketplace/mfa/front/verify.php', {
       method: 'POST',
       headers: {
@@ -33,6 +32,26 @@ export const verifyGlpiMfa = async (
     return {
       success: false,
       message: 'Failed to verify code. Please try again.',
+    };
+  }
+};
+
+export const getDefaultMfaConfig = async (): Promise<{
+  defaultSenderEmail: string;
+  defaultReceiverEmail: string;
+}> => {
+  try {
+    const response = await fetch('http://glpi.ngageapp.com:81/marketplace/mfa/front/config.php');
+    const data = await response.json();
+    return {
+      defaultSenderEmail: data.defaultSenderEmail || '',
+      defaultReceiverEmail: data.defaultReceiverEmail || '',
+    };
+  } catch (error) {
+    console.error('Failed to fetch MFA configuration:', error);
+    return {
+      defaultSenderEmail: '',
+      defaultReceiverEmail: '',
     };
   }
 };
