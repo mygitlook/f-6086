@@ -3,7 +3,11 @@ interface GlpiMfaResponse {
   message: string;
 }
 
-export const verifyGlpiMfa = async (otp: string): Promise<GlpiMfaResponse> => {
+export const verifyGlpiMfa = async (
+  otp: string,
+  senderEmail: string,
+  receiverEmail: string
+): Promise<GlpiMfaResponse> => {
   try {
     // This is a placeholder for the actual GLPI MFA verification
     // You would need to replace this with your actual GLPI API endpoint
@@ -12,7 +16,11 @@ export const verifyGlpiMfa = async (otp: string): Promise<GlpiMfaResponse> => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ otp }),
+      body: JSON.stringify({ 
+        otp,
+        senderEmail,
+        receiverEmail 
+      }),
     });
 
     const data = await response.json();
