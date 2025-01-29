@@ -13,8 +13,12 @@ const Configuration = () => {
     
     setIsLoading(true);
     try {
-      // Use the full path to ensure proper routing through GLPI
-      const response = await fetch('/plugins/mfa/front/config.php', {
+      // Construct the URL relative to GLPI's root
+      const glpiRoot = window.location.pathname.includes('/marketplace') 
+        ? '../../..'
+        : '.';
+      
+      const response = await fetch(`${glpiRoot}/marketplace/mfa/front/config.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,6 +46,7 @@ const Configuration = () => {
         description: "Failed to update configuration. Please ensure you're logged into GLPI.",
         variant: "destructive",
       });
+      console.error('Configuration error:', error);
     } finally {
       setIsLoading(false);
     }
