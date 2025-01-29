@@ -13,15 +13,9 @@ const Configuration = () => {
     
     setIsLoading(true);
     try {
-      // Get the current script path
-      const scriptPath = document.currentScript?.getAttribute('src') || '';
-      const baseUrl = scriptPath.split('/').slice(0, -2).join('/');
-      
-      // Construct the full URL using the document's location
-      const url = new URL(
-        'plugins/mfa/front/config.php',
-        window.location.origin + baseUrl
-      ).toString();
+      // Use the correct plugin path for otpauth
+      const pluginPath = '/plugins/otpauth/front/config.php';
+      const url = window.location.origin + pluginPath;
 
       console.log('Attempting to fetch from URL:', url);
       
@@ -46,7 +40,7 @@ const Configuration = () => {
       if (data.success) {
         toast({
           title: "Success",
-          description: "MFA configuration updated successfully",
+          description: "OTP configuration updated successfully",
         });
       } else {
         throw new Error(data.message || 'Failed to update configuration');
@@ -69,9 +63,9 @@ const Configuration = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>GLPI MFA Configuration</CardTitle>
+              <CardTitle>GLPI OTP Configuration</CardTitle>
               <CardDescription>
-                Configure MFA settings for your GLPI installation
+                Configure OTP settings for your GLPI installation
               </CardDescription>
             </div>
             <Link to="/">
