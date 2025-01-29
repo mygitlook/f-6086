@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { verifyGlpiMfa } from "@/utils/glpiMfa";
-import { Loader2 } from "lucide-react";
+import { Loader2, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const [otp, setOtp] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
-  const glpiUrl = "http://glpi.ngageapp.com:81/marketplace/mfa/front/mfa.form.php";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,11 +48,18 @@ const Index = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>GLPI Two-Factor Authentication</CardTitle>
-          <CardDescription>
-            Enter the verification code from your authenticator app
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>GLPI Two-Factor Authentication</CardTitle>
+            <CardDescription>
+              Enter the verification code from your authenticator app
+            </CardDescription>
+          </div>
+          <Link to="/config">
+            <Button variant="ghost" size="icon">
+              <Settings className="h-5 w-5" />
+            </Button>
+          </Link>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -65,7 +72,7 @@ const Index = () => {
                   render={({ slots }) => (
                     <InputOTPGroup>
                       {slots.map((slot, idx) => (
-                        <InputOTPSlot key={idx} {...slot} index={idx} />
+                        <InputOTPSlot key={idx} {...slot} />
                       ))}
                     </InputOTPGroup>
                   )}
@@ -88,18 +95,6 @@ const Index = () => {
               )}
             </Button>
           </form>
-          
-          <div className="mt-4 text-sm text-center text-gray-500">
-            <p>Having trouble? Contact your system administrator or visit:</p>
-            <a 
-              href={glpiUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              GLPI MFA Setup Page
-            </a>
-          </div>
         </CardContent>
       </Card>
     </div>
