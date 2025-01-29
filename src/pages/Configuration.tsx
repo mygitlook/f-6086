@@ -13,12 +13,19 @@ const Configuration = () => {
     
     setIsLoading(true);
     try {
-      // Construct the URL relative to GLPI's root
-      const glpiRoot = window.location.pathname.includes('/marketplace') 
-        ? '../../..'
-        : '.';
+      // Get the current script path
+      const scriptPath = document.currentScript?.getAttribute('src') || '';
+      const baseUrl = scriptPath.split('/').slice(0, -2).join('/');
       
-      const response = await fetch(`${glpiRoot}/marketplace/mfa/front/config.php`, {
+      // Construct the full URL using the document's location
+      const url = new URL(
+        'plugins/mfa/front/config.php',
+        window.location.origin + baseUrl
+      ).toString();
+
+      console.log('Attempting to fetch from URL:', url);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,11 +33,15 @@ const Configuration = () => {
         credentials: 'include', // This ensures cookies are sent with the request
       });
 
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
+        console.error('Response not OK:', await response.text());
         throw new Error('Failed to update configuration');
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
       
       if (data.success) {
         toast({
@@ -41,12 +52,12 @@ const Configuration = () => {
         throw new Error(data.message || 'Failed to update configuration');
       }
     } catch (error) {
+      console.error('Configuration error details:', error);
       toast({
         title: "Error",
         description: "Failed to update configuration. Please ensure you're logged into GLPI.",
         variant: "destructive",
       });
-      console.error('Configuration error:', error);
     } finally {
       setIsLoading(false);
     }
