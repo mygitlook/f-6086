@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Configuration = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,8 +13,8 @@ const Configuration = () => {
     
     setIsLoading(true);
     try {
-      // Use the relative path to ensure we're using GLPI's routing
-      const response = await fetch('../marketplace/mfa/front/config.php', {
+      // Use the full path to ensure proper routing through GLPI
+      const response = await fetch('/plugins/mfa/front/config.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,10 +51,19 @@ const Configuration = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>GLPI MFA Configuration</CardTitle>
-          <CardDescription>
-            Configure MFA settings for your GLPI installation
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>GLPI MFA Configuration</CardTitle>
+              <CardDescription>
+                Configure MFA settings for your GLPI installation
+              </CardDescription>
+            </div>
+            <Link to="/">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
