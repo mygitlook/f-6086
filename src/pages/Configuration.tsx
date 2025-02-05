@@ -1,20 +1,22 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Configuration = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     setIsLoading(true);
     try {
-      // Use the correct plugin path for otpauth
-      const pluginPath = '/plugins/otpauth/front/config.php';
+      // Using the twofactor plugin path
+      const pluginPath = '/plugins/twofactor/front/config.php';
       const url = window.location.origin + pluginPath;
 
       console.log('Attempting to fetch from URL:', url);
@@ -30,21 +32,14 @@ const Configuration = () => {
       console.log('Response status:', response.status);
       
       if (!response.ok) {
-        console.error('Response not OK:', await response.text());
+        const errorText = await response.text();
+        console.error('Response not OK:', errorText);
         throw new Error('Failed to update configuration');
       }
 
-      const data = await response.json();
-      console.log('Response data:', data);
+      // After successful configuration, redirect to 2FA setup
+      window.location.href = window.location.origin + '/plugins/twofactor/front/setup.php';
       
-      if (data.success) {
-        toast({
-          title: "Success",
-          description: "OTP configuration updated successfully",
-        });
-      } else {
-        throw new Error(data.message || 'Failed to update configuration');
-      }
     } catch (error) {
       console.error('Configuration error details:', error);
       toast({
@@ -63,9 +58,9 @@ const Configuration = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>GLPI OTP Configuration</CardTitle>
+              <CardTitle>GLPI Two-Factor Authentication</CardTitle>
               <CardDescription>
-                Configure OTP settings for your GLPI installation
+                Set up two-factor authentication for your GLPI account
               </CardDescription>
             </div>
             <Link to="/">
@@ -82,7 +77,7 @@ const Configuration = () => {
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? 'Saving...' : 'Save Configuration'}
+              {isLoading ? 'Setting up...' : 'Set up Two-Factor Authentication'}
             </Button>
           </form>
         </CardContent>
