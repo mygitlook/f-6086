@@ -4,18 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { ArrowLeft } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Configuration = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     setIsLoading(true);
     try {
-      // Using the twofactor plugin path
       const pluginPath = '/plugins/twofactor/front/config.php';
       const url = window.location.origin + pluginPath;
 
@@ -26,25 +24,35 @@ const Configuration = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // This ensures cookies are sent with the request
+        credentials: 'include',
       });
 
       console.log('Response status:', response.status);
       
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+
+      if (responseText.includes('Base32.php')) {
+        toast({
+          title: "Plugin Error",
+          description: "The Two-Factor plugin is not properly installed. Please contact your system administrator to install the required OTPHP library.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response not OK:', errorText);
         throw new Error('Failed to update configuration');
       }
 
-      // After successful configuration, redirect to 2FA setup
+      // Only redirect if we got a successful response
       window.location.href = window.location.origin + '/plugins/twofactor/front/setup.php';
       
     } catch (error) {
       console.error('Configuration error details:', error);
       toast({
         title: "Error",
-        description: "Failed to update configuration. Please ensure you're logged into GLPI.",
+        description: "Failed to update configuration. Please ensure you're logged into GLPI and the plugin is properly installed.",
         variant: "destructive",
       });
     } finally {
