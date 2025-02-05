@@ -37,11 +37,12 @@ const Configuration = () => {
       const responseText = await response.text();
       console.log('Response text:', responseText);
 
-      if (responseText.includes('Base32.php')) {
+      // Check for various OTPHP library issues
+      if (responseText.includes('Base32.php') || responseText.includes('ParameterTrait') || responseText.includes('Trait not found')) {
         setMissingLibrary(true);
         toast({
-          title: "Missing Required Library",
-          description: "The OTPHP library is not installed. Please contact your system administrator.",
+          title: "Missing Required Libraries",
+          description: "The OTPHP library is not properly installed. Please contact your system administrator.",
           variant: "destructive",
         });
         return;
@@ -51,6 +52,7 @@ const Configuration = () => {
         throw new Error('Failed to update configuration');
       }
 
+      // If we get here, all libraries are present and the response was successful
       window.location.href = window.location.origin + '/plugins/twofactor/front/setup.php';
       
     } catch (error) {
@@ -87,13 +89,17 @@ const Configuration = () => {
           {missingLibrary && (
             <Alert variant="destructive" className="mb-4">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Missing Required Library</AlertTitle>
+              <AlertTitle>Missing Required Libraries</AlertTitle>
               <AlertDescription>
-                The Two-Factor plugin requires the OTPHP library to be installed on the server. 
-                Please contact your system administrator and request them to install the required library.
+                The Two-Factor plugin requires the complete OTPHP library to be installed on the server. 
+                Please contact your system administrator and request them to install all required libraries:
                 <br />
                 <code className="text-sm mt-2 block">
-                  Missing file: /var/www/html/glpi/plugins/twofactor/lib/otphp/Trait/Base32.php
+                  Missing files in /var/www/html/glpi/plugins/twofactor/lib/otphp/:
+                  <br />
+                  - Trait/Base32.php
+                  <br />
+                  - Trait/ParameterTrait.php
                 </code>
               </AlertDescription>
             </Alert>
